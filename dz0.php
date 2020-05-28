@@ -1,8 +1,8 @@
 <?php
 require_once("dz0_func.php");
-const TESTCONSTANTA = 'asd';
-$user_name = "Igor";
+const TEST_CONSTANTA = 'asd';
+$userName = "Igor";
 
-if (1==1) {
+if (1 == 1) {
     echo 'hi';
 }

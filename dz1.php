@@ -52,7 +52,6 @@ switch ($day) {
         break;
     default:
         echo "Неизвестный день.";
-        break;
 }
 echo "<br><br><br>";
 
