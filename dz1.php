@@ -82,10 +82,17 @@ $cars = [
 
 echo "<strong>Задание #5</strong><br>";
 foreach ($cars as $brand => $car) {
-    echo "CAR $brand<br>";
+    echo "CAR $brand <br>";
     foreach ($car as $value) {
         echo "$value ";
     }
+    echo "<br><br><br>";
+}
+
+echo "<strong>Задание #5 (после WorkShop)</strong><br>";
+foreach ($cars as $brand => $car) {
+    echo "CAR $brand <br>";
+    echo "{$car['model']} {$car['speed']} {$car['doors']} {$car['year']}";
     echo "<br><br><br>";
 }
 
