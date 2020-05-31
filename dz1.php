@@ -14,7 +14,7 @@ const PICTURE_PEN=40;
 $picturePaint = PICTURE_COUNT-PICTURE_FELT-PICTURE_PEN;
 
 echo "<strong>Задание #2</strong><br>";
-echo "На школьной выставке " . PICTURE_COUNT . " рисунков.";
+echo "На школьной выставке " . PICTURE_COUNT . " рисунков.<br>";
 echo "Из них фломастерами выполнены " . PICTURE_FELT . ", карандашами - " . PICTURE_PEN . ",";
 echo " а остальные - красками.<br>";
 echo "Сколько рисунков выполненны красками?<br>";
@@ -24,11 +24,11 @@ echo "<br><br><br>";
 $age = mt_rand(-100, 100);
 echo "<strong>Задание #3</strong><br>";
 echo "Возраст: $age<br>";
-if ($age>=18 && $age<=65) {
+if ($age >= 18 && $age <= 65) {
     echo "Вам еще работать и работать!";
-} elseif ($age>65) {
+} elseif ($age > 65) {
     echo "Вам пора на пенсию!";
-} elseif ($age>=1 && $age<=17) {
+} elseif ($age >= 1 && $age <= 17) {
     echo "Вам ещё рано работать!";
 } else {
     echo "Неизвестный возраст!";
@@ -61,18 +61,20 @@ $bmw = [
     "doors" => 5,
     "year" => "2015"
 ];
-$toyota = $bmw;
-$opel = $bmw;
 
-$toyota["model"] = "Camry";
-$toyota["speed"] = 210;
-$toyota["doors"] = 4;
-$toyota["year"] = "2017";
+$toyota = [
+    "model" => "Camry",
+    "speed" => 210,
+    "doors" => 4,
+    "year" => "2017"
+];
 
-$opel["model"] = "Corsa";
-$opel["speed"] = 185;
-$opel["doors"] = 3;
-$opel["year"] = "2015";
+$opel = [
+    "model" => "Corsa",
+    "speed" => 185,
+    "doors" => 3,
+    "year" => "2015"
+];
 
 $cars = [
     "bmw" => $bmw,

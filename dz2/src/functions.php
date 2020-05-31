@@ -2,90 +2,74 @@
 
 function task1(array $arrStrings, $inOneLine = false)
 {
-    $glue = $inOneLine === true ? "" : "</p><p>";
-    $concStrings = "<p>" . implode($glue, $arrStrings) . "</p>";
-    echo $concStrings;
+    // Первый пунк задания
+    echo "<p>" . implode("</p><p>", $arrStrings) . "</p>";
+    // Второй пункт задания
+    if ($inOneLine) {
+        return implode("", $arrStrings);
+    }
+
 }
 
-function task2($operation)
+function task2()
 {
-    // У меня версия PHP 5.6 (с 7.0 OpenServer не запускается, видимо из-за ОС Windows 7,
-    // поэтому strict type для string не работает.
-    if (!is_string($operation)) {
-        return 'Ошибка. Первый аргумент должен быть строкой!';
-    }
-    // Берем из переданной строки первый символ и проверяем на соответствие допустимой операции
-    $operation = substr($operation, 0, 1);
-    if (strpos('+-*/', $operation) === false) {
-        return 'Ошибка. Недопустимая операция над аргументами!';
-    }
-
     $args = func_get_args();
+    $operation = $args[0];
+    unset($args[0]);
 
-    // Создаем новый массив, состоящий только из аргументов, которые являются числами
-    $num = [];
-    foreach ($args as $arg) {
-        if (is_integer($arg) || is_float($arg)) {
-            $num[] = $arg;
-        }
-    }
-    if (empty($num)) {
-        return 'Ошибка. Отсутствуют аргменты для вычисления!';
-    }
+    $result = $args[1];
+    unset($args[1]);
 
-    // Извлекаем из числового массива первый элемент для инициализации переменных
-    $result = array_shift($num);
-    $strResult = "$result $operation ";
-
-    $skipArg = false; // Флаг об исключении элемента из операции
-    foreach ($num as $arg) {
-        if ($operation == '+') {
-            $result += $arg;
-        } elseif ($operation == '-') {
-            $result -= $arg;
-        } elseif ($operation == '*') {
-            $result *= $arg;
-        } elseif ($operation == '/') {
-            // Пропускаем нулевой элемент, так как на 0 делить нельзя
-            if ($arg != 0) {
-                $result /= $arg;
-            } else {
-                $skipArg = true;
+    switch ($operation) {
+        case '+':
+            foreach ($args as $value) {
+                $result += $value;
             }
-        }
-        if (!$skipArg) {
-            $strResult .= $arg . " $operation ";
-        } else {
-            $skipArg = false;
-        }
+            break;
+        case '-':
+            foreach ($args as $value) {
+                $result -= $value;
+            }
+            break;
+        case '*':
+            foreach ($args as $value) {
+                $result *= $value;
+            }
+            break;
+        case '/':
+            foreach ($args as $value) {
+                if ($value == 0) {
+                    return 'Ошибка. На ноль делить нельзя!';
+                }
+                $result /= $value;
+            }
+            break;
+        default:
+            return 'Ошибка. Недопустимая операция над аргументами!';
     }
-    if (empty($strResult)) {
-        $return = 'Нет данных для вычислений';
-    } else {
-        // Удаляем из конца строки пробел и знак операции
-        $strResult = rtrim($strResult, "$operation ");
-        $return = $strResult . " = $result";
-    }
-    return $return;
+    return $result;
 }
 
-function task3($rowCount, $colCount)
+// task3(1, 1);
+// task3(0, 0);
+// task3(0, 1);
+// task3(1.1, 1);
+function task3($rows, $cols)
 {
-    if (!is_int($colCount) || !is_int($rowCount)) {
-        echo 'Ошибка. Передаваемые аргументы должны быть целыми числами!';
-    } elseif ($colCount <= 0 || $rowCount <= 0) {
+    if ($cols < 1 || $rows < 1) {
         echo 'Ошибка. Передаваемые аргументы должны быть больше 0!';
-    } else {
-        echo '<table border="1">';
-        for ($row = 1; $row <= $rowCount; $row++) {
-            echo '<tr>';
-            for ($col = 1; $col <= $colCount; $col++) {
-                echo '<td>' . $col * $row . '</td>';
-            }
-            echo '</tr>';
-        }
-        echo '</table>';
+        return null;
     }
+
+    echo '<table border="1">';
+    for ($row = 1; $row <= $rows; $row++) {
+        echo '<tr>';
+        for ($col = 1; $col <= $cols; $col++) {
+            echo '<td>' . $col * $row . '</td>';
+        }
+        echo '</tr>';
+    }
+    echo '</table>';
 }
 
 function task4()
