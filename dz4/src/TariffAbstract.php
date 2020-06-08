@@ -29,29 +29,29 @@ abstract class TariffAbstract implements TariffInterface
 
     public function addService(ServiceInterface $service)
     {
-        $found = false;
-        foreach ($this->services as $serv) {
-            if ($serv->getId() == $service->getId()) {
-                $found = true;
-                break;
-            }
-        }
-        if (!$found) {
+        if (!in_array($service->getId(), $this->getListServices(), true)) {
             array_push($this->services, $service);
         }
+
         return $this;
     }
 
     public function removeService($id)
     {
-        foreach ($this->services as $key=>$serv) {
-            if ($serv->getId() === $id) {
-                unset($this->services[$key]);
-                break;
-            }
-        }
-
+        $key = array_search($id, $this->getListServices(), true);
+        if (!$key === false) {
+            unset($this->services[$key]);
+        };
         return $this;
+    }
+
+    public function getListServices()
+    {
+        $ret = [];
+        foreach ($this->services as $key => $serv) {
+            $ret[] = $serv->getId();
+        }
+        return $ret;
     }
 
     public function getMinutes()

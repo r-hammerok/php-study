@@ -10,7 +10,9 @@ include "src/ServiceDriver.php";
 
 $tariff = new TariffStudent(10, 60);
 $tariff->addService(new ServiceGPS(1, 15));
-$tariff->addService(new ServiceGPS(1, 15));
-//$tariff->addService(new ServiceDriver(2, 100));
-//$tariff->addService(new ServiceDriver(3, 200));
+$tariff->addService(new ServiceGPS(3, 25));
+$tariff->addService(new ServiceDriver(2, 100));
+echo $tariff->getTripPrice();
+echo "<br>";
+$tariff->removeService(3);
 echo $tariff->getTripPrice();
