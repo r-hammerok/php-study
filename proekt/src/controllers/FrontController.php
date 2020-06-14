@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+
 class FrontController extends BaseController
 {
     public function index()
