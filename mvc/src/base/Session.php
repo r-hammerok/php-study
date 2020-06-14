@@ -5,16 +5,19 @@ class Session
 {
     protected $userID;
 
-    public function __construct($userId)
-    {
-        $this->userID = $userId;
-    }
-
     /**
      * @return mixed
      */
     public function getUserID()
     {
         return $this->userID;
+    }
+
+    /**
+     * @param mixed $userID
+     */
+    public function setUserID($userID)
+    {
+        $this->userID = $userID;
     }
 }

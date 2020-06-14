@@ -26,7 +26,7 @@ class User
         if (isset($data['regDate'])) {
             $this->registrationDate = $data['regDate'];
         } else {
-            $this->registrationDate = date('Y-m-d H:m:s');
+            $this->registrationDate = date('Y-m-d H:i:s');
         };
         $this->email = mb_strtolower($data['email']);
         $this->passwordHash = $data['password'];

@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use Cassandra\Varint;
 
 class UserController extends BaseController
 {
@@ -18,20 +19,26 @@ class UserController extends BaseController
             } else {
                 $validateData = $validateResult['values'];
                 $user =  new User();
-                $returnData = $user->getDataFromDb($validateData['email'])[0];
+                $result = $user->getDataFromDb($validateData['email']);
+                $userData = $result[0];
 
-                if ($returnData === null) {
+                if ($result === null) {
                     $data['errors'] = ['errors' => 'Database Exception (getDataFromDb)'];
-                } elseif (empty($returnData) ||
-                    !self::verifyPasswordHash($validateData['password'], $returnData['password'])) {
+                } elseif (empty($result) ||
+                    !self::verifyPasswordHash($validateData['password'], $userData['password'])) {
                     $data['errors'] = ['errors' => 'This user does not exist'];
                 } else {
                     $data['success'] = true;
+                    $_SESSION['user_id'] = $userData['id'];
                 }
             }
         }
 
-        $this->render('user\loginForm', $data);
+        if ($data['success']) {
+            header('Location: /');
+            exit();
+        }
+        $this->render('user/loginForm', $data);
 
     }
 
@@ -62,7 +69,12 @@ class UserController extends BaseController
             }
         }
 
-        $this->render('user\registerForm', $data);
+        if ($data['success']) {
+            header('Location: user/loginForm');
+            exit();
+        }
+
+        $this->render('user/registerForm', $data);
     }
 
     /**

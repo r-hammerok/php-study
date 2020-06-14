@@ -13,16 +13,20 @@ class FrontController extends BaseController
 
     public function index()
     {
-        $_SESSION['user_id'] = 3;
-
-        $this->session = New Session($_SESSION['user_id']);
-
+        $this->session = New Session();
+        $this->session->setUserID($_SESSION['user_id']);
         $data = [];
 
         if (empty($this->session->getUserID())) {
             $this->render('index\mainPage');
         } else {
             $this->post = new post();
+
+            if (isset($_GET['delete']) && $_SESSION['user_id'] == ADMIN_ID) {
+                $idPost = (int) $_GET['delete'];
+                $this->post->deletePostFromDB($idPost);
+            }
+
             if (isset($_POST['post'])) {
                 $message = htmlentities(trim($_POST['post']));
                 if (empty($message)) {
@@ -47,7 +51,6 @@ class FrontController extends BaseController
             $this->render('post\blogPage', $data);
         }
     }
-
 
     /**
      * @param bool $extension

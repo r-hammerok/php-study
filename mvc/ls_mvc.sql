@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Июн 14 2020 г., 12:36
+-- Время создания: Июн 14 2020 г., 16:46
 -- Версия сервера: 5.6.43
 -- Версия PHP: 5.6.40
 
@@ -41,11 +41,12 @@ CREATE TABLE `posts` (
 --
 
 INSERT INTO `posts` (`id`, `created_at`, `owner_id`, `text`, `img_name`) VALUES
-(1, '2020-06-14 08:06:44', 3, '111', NULL),
-(2, '2020-06-14 08:06:48', 3, '222', NULL),
 (3, '2020-06-14 11:06:27', 3, 'Post with image', 'fd6590a03c.jpg'),
-(4, '2020-06-14 12:06:33', 3, 'No image in post', NULL),
-(5, '2020-06-14 12:06:38', 3, 'Hi', NULL);
+(12, '2020-06-14 16:06:43', 6, '111', NULL),
+(13, '2020-06-14 16:06:53', 6, '222', NULL),
+(14, '2020-06-14 16:06:36', 5, '333', NULL),
+(15, '2020-06-14 16:45:12', 5, '444', NULL),
+(16, '2020-06-14 16:45:42', 6, '777', NULL);
 
 -- --------------------------------------------------------
 
@@ -70,7 +71,8 @@ INSERT INTO `users` (`id`, `name`, `reg_data`, `email`, `password`) VALUES
 (2, 'sergey', '2020-06-13 12:06:09', '2@mail.ru', '$2y$10$LvHknIdg7d5TrpV86F7.ledp7INOj/KWME0uZVG71O4bzurr2kxke'),
 (3, 'anna', '2020-06-13 13:06:00', '3@mail.ru', '$2y$10$2FHK2yIpA/aRmENPfLrE2ulN2psydof1gqcPBYBxZkn7QzVYQh7IS'),
 (4, 'dima', '2020-06-13 16:06:35', '4@mail.ru', '$2y$10$3mA9MGCnlbmPBuyGKPSa4.8IdN9PyyxCW/tn5zrx6Ygi8uHotVQM2'),
-(5, 'nina', '2020-06-14 06:06:53', '5@mail.ru', '$2y$10$8Gl.4b2E7dh1bvdKLxh14..Tg7rU7irh0iDNkLjQUJvV4tmqCxLXa');
+(5, 'nina', '2020-06-14 06:06:53', '5@mail.ru', '$2y$10$8Gl.4b2E7dh1bvdKLxh14..Tg7rU7irh0iDNkLjQUJvV4tmqCxLXa'),
+(6, 'luyba', '2020-06-14 13:06:11', '7@mail.ru', '$2y$10$6nxEXBBux5WRugyYT2iv/Of.uGhKb4ykupzuZ8QypVLShGwCU6Sby');
 
 --
 -- Индексы сохранённых таблиц
@@ -97,13 +99,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

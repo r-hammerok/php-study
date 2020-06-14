@@ -24,6 +24,15 @@
         float: right;
         margin-left: 10px;
     }
+    .post .button-delete {
+        display: inline-block;
+        float: right;
+        clear: both;
+        font-size: 10px;
+    }
+    .post-title {
+        margin-bottom: 7px;
+    }
     .user {
         color: grey;
         font-size: 11px;
@@ -60,10 +69,16 @@ if (isset($data['errors'])) { ?>
         <? $image = $post['img_name'];?>
         <? $pathImage = IMG_HTML_DIR . $image;?>
         <div class="post">
+            <div class="post-title">
+                <span class="user">Сообщение от <b><?=$user;?></b> отправлено <?=$post['created_at'];?></span>
+                <? if ($_SESSION['user_id'] == ADMIN_ID): ?>
+                    <? $href = '/index/?delete=' . $post['id']; ?>
+                    <a class="button-delete" href="<?=$href;?>">delete</a>
+                <? endif; ?>
+            </div>
             <? if ($image !== null && __DIR__ . file_exists($pathImage)): ?>
             <img src="<?=$pathImage;?>" alt="post image">
             <? endif; ?>
-            <span class="user">Сообщение от <b><?=$user;?></b> отправлено <?=$post['created_at'];?></span>
             <div class="message"><?=$post['text'];?></div>
         </div>
     <? endforeach;?>
