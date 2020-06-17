@@ -1,87 +1,78 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Models\User;
-use Cassandra\Varint;
 
 class UserController extends BaseController
 {
-    const MIN_LEN_PASSWORD = 4;
+    private const MIN_LEN_PASSWORD = 4;
 
-    public function showLoginForm()
+    public function login()
     {
-        $data = [];
-        if ($_POST) {
-            $validateResult = self::validateFormData($_POST);
+        if (empty($_POST)) {
+            $this->render('user/loginForm', []);
+            return 0;
+        }
+        $validateResult = self::checkForm($_POST);
 
-            if (isset($validateResult['errors'])) {
-                $data['errors'] = $validateResult['errors'];
-            } else {
-                $validateData = $validateResult['values'];
-                $user =  new User();
-                $result = $user->getDataFromDb($validateData['email']);
-                $userData = $result[0];
-
-                if ($result === null) {
-                    $data['errors'] = ['errors' => 'Database Exception (getDataFromDb)'];
-                } elseif (empty($result) ||
-                    !self::verifyPasswordHash($validateData['password'], $userData['password'])) {
-                    $data['errors'] = ['errors' => 'This user does not exist'];
-                } else {
-                    $data['success'] = true;
-                    $_SESSION['user_id'] = $userData['id'];
-                }
-            }
+        if (!empty($validateResult['errors'])) {
+            $this->render('user/loginForm', $validateResult);
+            return 0;
         }
 
-        if ($data['success']) {
-            header('Location: /');
-            exit();
-        }
-        $this->render('user/loginForm', $data);
+        $validateData = $validateResult['values'];
+        $user = new User();
+        $userData = $user->getData($validateData['email']);
 
+        if (empty($userData) || !password_verify($validateData['password'], $userData['password'])) {
+            $this->render('user/loginForm', ['errors' => [0 => 'This user does not exist']]);
+            return 0;
+        }
+
+        $this->session::setUserID($userData['id']);
+        header('Location: /posts');
+        exit();
     }
 
-    public function showRegisterForm()
+    public function register()
     {
-        $data = [];
-        if ($_POST) {
-            $validateResult = self::validateFormData($_POST);
-            if (empty($validateResult['errors'])) {
-                $validateData = $validateResult['values'];
-                $user =  new User();
-                $returnData = $user->getDataFromDb($validateData['email']);
-
-                if ($returnData === null) {
-                    $data['errors'] = ['errors' => 'Database Exception (getDataFromDb)'];
-                } elseif (!empty($returnData)) {
-                    $data['errors'] = ['errors' => 'This user already exists'];
-                } else {
-                    $success = $user->setData($validateData)->saveDataInDb();
-                    if (!$success) {
-                        $data['errors'] = ['errors' => 'Database Exception (saveDataInDb)'];
-                    } else {
-                        $data['success'] = true;
-                    }
-                }
-            } else {
-                $data['errors'] = $validateResult['errors'];
-            }
+        if (!$_POST) {
+            $this->render('user/registerForm');
+            return 0;
         }
 
-        if ($data['success']) {
-            header('Location: user/loginForm');
-            exit();
+        $validateResult = self::checkForm($_POST);
+
+        if (!empty($validateResult['errors'])) {
+            $this->render('user/registerForm', $validateResult);
+            return 0;
         }
 
-        $this->render('user/registerForm', $data);
+        $validateData = $validateResult['values'];
+        $user = new User();
+        $returnData = $user->getData($validateData['email']);
+
+        if (!empty($returnData)) {
+            $this->render('user/registerForm', ['errors' => [0 => 'User already exists']]);
+            return 0;
+        }
+
+        $validateData['regDate'] = date('Y-m-d H:i:s');
+        if (!$user->saveData($validateData)) {
+            $this->render('user/registerForm', ['errors' => [0 => 'Error writing to database']]);
+            return 0;
+        }
+
+        header('Location: /user/login');
+        exit();
     }
 
     /**
      * @param array $data
      * @return array
      */
-    private function validateFormData(array $data)
+    private function checkForm(array $data)
     {
         $errors = [];
         $values = [];
@@ -101,40 +92,26 @@ class UserController extends BaseController
             $values['email'] = htmlentities(trim($data['email']));
         }
 
+        if (empty($data['password'])) {
+            $errors[] = 'Password field is not filled';
+        } else {
+            $values['password'] = $data['password'];
+        }
+
         if (isset($data['password_again'])) {
-            // Если есть такое поле, то значит проверяем поля из формы Регистрации
+            // Если такое поле существует, то значит проверяем форму Регистрации
             if (mb_strlen($data['password']) < self::MIN_LEN_PASSWORD) {
                 $errors[] = 'Password must be at least 4 characters';
             } elseif (strcmp($data['password'], $data['password_again']) != 0) {
                 $errors[] = 'Password mismatch';
             } else {
-                $values['password'] = self::getPasswordHash($data['password']);
-            }
-        } else {
-            if (mb_strlen($data['password']) == 0) {
-                $errors[] = 'Password field is not filled';
-            } else {
-                $values['password'] = $data['password'];
+                $values['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
             }
         }
+
         if (empty($errors)) {
             return ['values' => $values];
-        } else {
-            return ['errors' => $errors];
         }
-    }
-
-    /**
-     * @param $password
-     * @return false|string|null
-     */
-    private function getPasswordHash($password)
-    {
-        return password_hash((string) $password, PASSWORD_DEFAULT);
-    }
-
-    private function verifyPasswordHash($password, $hash)
-    {
-        return password_verify($password, $hash);
+        return ['errors' => $errors];
     }
 }

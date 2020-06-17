@@ -6,7 +6,7 @@ use Base;
 class User
 {
     protected $name;
-    protected $id = null;
+    protected $id;
     protected $registrationDate;
     protected $email;
     protected $passwordHash;
@@ -15,19 +15,13 @@ class User
      * @param $data
      * @return $this
      */
-    public function setData($data)
+    protected function set($data)
     {
         if (isset($data['id'])) {
             $this->id = $data['id'];
         };
-
         $this->name = $data['name'];
-
-        if (isset($data['regDate'])) {
-            $this->registrationDate = $data['regDate'];
-        } else {
-            $this->registrationDate = date('Y-m-d H:i:s');
-        };
+        $this->registrationDate = $data['reg_data'];
         $this->email = mb_strtolower($data['email']);
         $this->passwordHash = $data['password'];
 
@@ -35,48 +29,36 @@ class User
     }
 
     /**
-     * @return array
-     */
-    protected function getData()
-    {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'regDate' => $this->registrationDate,
-            'password' => $this->passwordHash
-        ];
-    }
-
-    /**
+     * @param array $data
      * @return bool
      */
-    public function saveDataInDb()
+    public function saveData(array $data): bool
     {
         $query = "INSERT INTO users (`name`, reg_data, email, password) VALUES (:name, :regDate, :email, :password)";
-        $values = self::getData();
-
-        return Base\db::execute($query, $values);
+        $result = Base\db::execute($query, $data);
+        if ($result) {
+            self::set(self::getData($data['email']));
+        }
+        return $result;
     }
 
     /**
      * @param $param
-     * @return array|null
+     * @return array|false
      *
      * Возвращает запись из таблицы users.
      * Если переданный параметр - целое число, то запитсь ищется по полю id,
      * если переданный параметр - строка, то запись ищется по полю email.
     */
-    public function getDataFromDb($param)
+    public function getData($param)
     {
         if (is_int($param)) {
             $field = 'id';
-        } elseif (is_string($param)) {
-            $field = 'email';
         } else {
-            return null;
+            $field = 'email';
         }
         $query = "SELECT * FROM users WHERE " . $field . " = :value";
 
-        return Base\db::fetchAll($query, ['value' => $param]);
+        return Base\db::fetch($query, ['value' => $param]);
     }
 }

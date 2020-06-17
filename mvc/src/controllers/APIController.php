@@ -7,18 +7,13 @@ class APIController extends BaseController
 {
     public function getMessages()
     {
-        $user_id = (int) $_GET['user_id'];
-
-        if ($user_id > 0) {
-            $result = (new Models\post())->getPostsFromDB($user_id);
-            if ($result) {
-                $return = $this->response($result, 200);
-                $this->render('index\apiResultPage', $return);
-                exit();
-            }
+        $userId = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
+        $result = (new Models\post())->getPosts($userId, POST_GETAPI_LIMIT);
+        if ($result) {
+            $this->render('index\apiResultPage', $this->response($result, 200));
+            exit();
         }
-        $return = $this->response('Data not found', 404);
-        $this->render('index\apiResultPage', $return);
+        $this->render('index\apiResultPage', $this->response('Data not found', 404));
     }
 
     /**

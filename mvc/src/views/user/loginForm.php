@@ -1,20 +1,28 @@
-<h2>Login page</h2>
-<form action="login" method="post">
-    E-mail: <input type="text" name="email" value="" ><br><br>
-    Password: <input type="text" name="password" value="" ><br><br>
-    <input type="submit" value="Login">
-</form>
-
-<?php
-/** @var $data \App\Controllers\UserController []*/
-if (isset($data['errors'])) { ?>
-    <ul style="color: red;">
-        <?php  foreach($data['errors'] as $value): ?>
-            <li>
-                <?= 'Error: ' . $value ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-<?php } elseif ($data['success']) { ?>
-    <p style="color: green;">Authorization completed successfully!</p>
-<?php } ?>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-sm-4">
+            <p class="h3 text-center px-5">Please enter your login and password</p>
+            <form class="form form-login" action="/login" method="post">
+                <div class="form-group">
+                    <label for="inputEmail">Email address</label>
+                    <input id="inputEmail" type="email" class="form-control" name="email" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword">Password</label>
+                    <input type="password" name="password" class="form-control" id="inputPassword"
+                           placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <?php if (isset($data['errors'])) : ?>
+                <div class="error">
+                    <?php foreach ($data['errors'] as $value) : ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?= $value ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

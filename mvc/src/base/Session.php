@@ -3,21 +3,35 @@ namespace Base;
 
 class Session
 {
-    protected $userID;
+    private static $session;
+    private static $userId;
 
-    /**
-     * @return mixed
-     */
-    public function getUserID()
+    public function __construct()
     {
-        return $this->userID;
     }
 
-    /**
-     * @param mixed $userID
-     */
-    public function setUserID($userID)
+    private function __clone()
     {
-        $this->userID = $userID;
+    }
+
+    public static function getSession()
+    {
+        if (self::$session === null) {
+            self::$session = new self;
+        }
+        self::$userId = $_SESSION['user_id'] ?? 0;
+
+        return self::$session;
+    }
+
+    public static function getUserID()
+    {
+        return self::$userId;
+    }
+
+    public static function setUserID(int $newUserId)
+    {
+        self::$userId = $newUserId;
+        $_SESSION['user_id'] = self::$userId;
     }
 }

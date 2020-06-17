@@ -1,0 +1,66 @@
+.form {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    border: 1px solid gray;
+    padding: 1rem;
+    border-radius: 15px;
+}
+
+.form textarea {
+    width: 100%;
+}
+
+.post {
+    border: 1px solid grey;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 5px;
+    overflow: auto;
+}
+
+.post-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: .2rem;
+}
+
+.post .delete-post {
+    text-align: end;
+    font-size: 11px;
+    color: #c13f3f;
+}
+
+.post .user {
+    margin-right: 5px;
+}
+
+.post-content {
+    display: flex;
+}
+
+.post img {
+    display: block;
+    max-width: 50px;
+    margin-right: .5rem;
+
+}
+.post .button-delete {
+    display: inline-block;
+    float: right;
+    clear: both;
+    font-size: 10px;
+}
+
+.user {
+    color: grey;
+    font-size: 11px;
+}
+
+.message {
+    margin-top: 5px;
+    padding-left: 5px;
+}
+
+.error-list {
+    color: red;
+}
