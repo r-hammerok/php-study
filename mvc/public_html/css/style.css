@@ -64,3 +64,8 @@
 .error-list {
     color: red;
 }
+
+.render-note {
+    text-align: right;
+    font-size: x-small;
+}

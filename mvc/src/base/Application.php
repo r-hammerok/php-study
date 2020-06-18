@@ -11,6 +11,7 @@ class Application
     {
         session_start();
         $this->session = Session::getSession();
+
         list($route, $action) = $this->issueRoutes();
 
         if ($route == 'index' && empty($action)) {
@@ -19,8 +20,7 @@ class Application
                 exit();
             }
             $controller = new Controller\FrontController($this->session);
-            $controller->index();
-            return 0;
+            return $controller->index();
         }
 
         if ($route == 'user' && $action == 'register') {
@@ -31,7 +31,7 @@ class Application
 
         if ($route == 'user' && $action = 'login') {
             $controller = new Controller\UserController($this->session);
-            $controller->login();
+            $controller->login($_POST);
             return 0;
         }
 

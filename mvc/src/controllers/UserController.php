@@ -8,16 +8,16 @@ class UserController extends BaseController
 {
     private const MIN_LEN_PASSWORD = 4;
 
-    public function login()
+    public function login(array $data)
     {
-        if (empty($_POST)) {
-            $this->render('user/loginForm', []);
+        if (empty($data)) {
+            $this->render('loginForm.twig', [], self::RENDER_TYPE_TWIG);
             return 0;
         }
-        $validateResult = self::checkForm($_POST);
+        $validateResult = self::checkForm($data);
 
         if (!empty($validateResult['errors'])) {
-            $this->render('user/loginForm', $validateResult);
+            $this->render('loginForm.twig', ['errors' => $validateResult['errors']], self::RENDER_TYPE_TWIG);
             return 0;
         }
 
@@ -26,7 +26,7 @@ class UserController extends BaseController
         $userData = $user->getData($validateData['email']);
 
         if (empty($userData) || !password_verify($validateData['password'], $userData['password'])) {
-            $this->render('user/loginForm', ['errors' => [0 => 'This user does not exist']]);
+            $this->render('loginForm.twig', ['errors' => ['This user does not exist']], self::RENDER_TYPE_TWIG);
             return 0;
         }
 

@@ -11,6 +11,7 @@ include __DIR__ . '\..\src\base\DB.php';
 include __DIR__ . '\..\src\base\Settings.php';
 include __DIR__ . '\..\src\base\Session.php';
 include __DIR__ . '\..\src\base\Application.php';
+require_once __DIR__ . '\..\src\vendor\autoload.php';
 
 if (DEVELOPMENT === 1) {
     ini_set('display_errors', 1);
