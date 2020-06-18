@@ -1,0 +1,8 @@
+{
+
+  "require": {
+    "swiftmailer/swiftmailer": "^6.0",
+    "intervention/image": "dev-master"
+  }
+
+}
