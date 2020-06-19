@@ -2,9 +2,11 @@
 temp
 proekt
 mvc_dima
+mvc-habr
 mvc/src/vendor/
 mvc/src/views/twig/cache/
 dz5/vendor/
+dz5/config.php
 dz3/burgers/css/
 dz3/burgers/fonts/
 dz3/burgers/img/
