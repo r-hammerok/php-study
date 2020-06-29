@@ -7,6 +7,11 @@ class Post extends Base
 
     protected $fillable = ['owner_id', 'text', 'img_name'];
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /**
      * @param int $ownerId
      * @param int $limit

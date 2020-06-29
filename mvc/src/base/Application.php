@@ -47,7 +47,7 @@ class Application
             exit();
         }
 
-        if ($route == 'posts' && empty($action)) {
+        if ($route == 'posts') {
             if (!self::accessControl(self::REQUIRED_AUTH)) {
                 return 0;
             }
