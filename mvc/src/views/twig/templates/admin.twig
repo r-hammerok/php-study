@@ -1,0 +1,50 @@
+{% extends "base.twig" %}
+{% block title %}Admin panel{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row my-2">
+            <div class="col-12 text-center">
+                <p class="h2">Admin panel</p>
+            </div>
+        </div>
+        <div class="row justify-content-end my-2">
+            <div class="col-2 text-right">
+                <a href="/admin/add" class="btn btn-primary">Add New User</a>
+            </div>
+        </div>
+        <table class="table table-hover table-bordered m-auto">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">registered</th>
+                <th scope="col">name</th>
+                <th scope="col">email</th>
+                <th scope="col">photo</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user['id'] }}</td>
+                    <td>{{ user['created_at']|date("d-m-Y H:i:s") }}</td>
+                    <td>{{ user['name'] }}</td>
+                    <td>{{ user['email'] }}</td>
+                    <td>
+                    {% if user['photo'] is not empty %}
+                        <img src="{{ [imgSRC, user['photo']]|join }}" alt="User photo" width="50">
+                    {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="/admin/edit/?user_id={{ user['id'] }}" class="btn btn-secondary">
+                            edit
+                        </a>
+                        {% set disabled = user['id'] == adminID ? 'disabled' : '' %}
+                        <a href="/admin/delete/?user_id={{ user['id'] }}" class="btn btn-danger {{ disabled }}">
+                            delete
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

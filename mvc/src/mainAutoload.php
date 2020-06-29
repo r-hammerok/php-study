@@ -20,5 +20,6 @@ function mainAutoload($className)
     if (!empty($namespacePath)) {
         $namespacePath .= '\\';
     }
+
     include_once __DIR__ . '\\' .  $namespacePath . $classFileName;
 }

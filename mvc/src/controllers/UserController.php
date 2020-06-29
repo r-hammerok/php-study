@@ -1,117 +1,162 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Models\User;
 
 class UserController extends BaseController
 {
-    private const MIN_LEN_PASSWORD = 4;
+    public function login(
+        array $post,
+        string $redirectOnSuccess = '',
+        string $redirectOnCancel = '',
+        string $formAction = 'login'
+    ) {
+        $this->templateName = 'loginForm.twig';
+        $this->renderType = self::RENDER_TYPE_TWIG;
+        $this->templateData['formAction'] = trim($formAction);
 
-    public function login(array $data)
-    {
-        if (empty($data)) {
-            $this->render('loginForm.twig', [], self::RENDER_TYPE_TWIG);
-            return 0;
-        }
-        $validateResult = self::checkForm($data);
-
-        if (!empty($validateResult['errors'])) {
-            $this->render('loginForm.twig', ['errors' => $validateResult['errors']], self::RENDER_TYPE_TWIG);
-            return 0;
-        }
-
-        $validateData = $validateResult['values'];
-        $user = new User();
-        $userData = $user->getData($validateData['email']);
-
-        if (empty($userData) || !password_verify($validateData['password'], $userData['password'])) {
-            $this->render('loginForm.twig', ['errors' => ['This user does not exist']], self::RENDER_TYPE_TWIG);
+        $validate = self::preAction($post, $redirectOnCancel);
+        if ($validate === null) {
             return 0;
         }
 
-        $this->session::setUserID($userData['id']);
-        header('Location: /posts');
+        $user = User::getData($validate['email']);
+        if (empty($user) || !password_verify($validate['password'], $user['password'])) {
+            $this->templateData['errors'] = ['This user does not exist'];
+            $this->render();
+            return 0;
+        }
+
+        $this->session::setUserID($user['id']);
+        header('Location: /' . $redirectOnSuccess);
         exit();
     }
 
-    public function register()
+    public function logout()
     {
-        if (!$_POST) {
-            $this->render('user/registerForm');
+        $this->session::clearSession();
+        return 0;
+    }
+
+    public function register(
+        array $post,
+        array $files,
+        string $redirectOnSuccess = '',
+        string $redirectOnCancel = '',
+        string $formAction = 'register'
+    ) {
+        $this->templateName = 'registerForm.twig';
+        $this->renderType = self::RENDER_TYPE_TWIG;
+        $this->templateData['formAction'] = trim($formAction);
+
+        $validate = self::preAction($post, $redirectOnCancel);
+        if ($validate === null) {
             return 0;
         }
 
-        $validateResult = self::checkForm($_POST);
-
-        if (!empty($validateResult['errors'])) {
-            $this->render('user/registerForm', $validateResult);
+        if (User::recordIsExist('email', $validate['email'])) {
+            $this->templateData['errors'] = ['User already exists'];
+            $this->render();
             return 0;
         }
 
-        $validateData = $validateResult['values'];
-        $user = new User();
-        $returnData = $user->getData($validateData['email']);
+        $validate['photo'] = '';
+        if (!empty($files['photo']['tmp_name'])) {
+            $tmp_name = $files['photo']['tmp_name'];
+            $file = self::getRandomFileName($files['photo']['name']);
+            move_uploaded_file($tmp_name, __DIR__ . WEB_DIR . PHOTO_HTML_DIR . $file);
+            $validate['photo'] = $file;
+        }
 
-        if (!empty($returnData)) {
-            $this->render('user/registerForm', ['errors' => [0 => 'User already exists']]);
+        User::insertData($validate);
+
+        header('Location: /' . $redirectOnSuccess);
+        exit();
+    }
+
+    public function edit(
+        int $id,
+        array $post,
+        array $files,
+        string $redirectOnSuccess = '',
+        string $redirectOnCancel = '',
+        string $formAction = 'edit'
+    ) {
+        $user = User::getData($id);
+        if (empty($user)) {
+            header('Location: /' . $redirectOnCancel);
+            exit();
+        }
+
+        $this->templateName = 'editForm.twig';
+        $this->renderType = self::RENDER_TYPE_TWIG;
+        $this->templateData['formAction'] = trim($formAction) . '/?user_id=' . $id;
+        $this->templateData['imgSRC'] = PHOTO_HTML_DIR;
+
+        self::fillFormValues($user);
+
+        $validate = self::preAction($post, $redirectOnCancel);
+        if ($validate === null) {
             return 0;
         }
 
-        $validateData['regDate'] = date('Y-m-d H:i:s');
-        if (!$user->saveData($validateData)) {
-            $this->render('user/registerForm', ['errors' => [0 => 'Error writing to database']]);
+        if ($user['name'] == $validate['name'] && $user['email'] == $validate['email'] &&
+            empty($files['photo']['tmp_name'])) {
+            header('Location: /' . $redirectOnSuccess);
+            exit();
+        }
+
+        if ($validate['email'] != $user['email'] &&
+            User::recordIsExist('email', $validate['email'])) {
+            $this->templateData['errors'] = ['Another user registered with this email'];
+            $this->render();
             return 0;
         }
 
-        header('Location: /user/login');
+        $validate['photo'] = '';
+        if (!empty($files['photo']['tmp_name'])) {
+            $tmp_name = $files['photo']['tmp_name'];
+            $file = self::getRandomFileName($files['photo']['name']);
+            move_uploaded_file($tmp_name, __DIR__ . WEB_DIR . PHOTO_HTML_DIR . $file);
+            $validate['photo'] = $file;
+        }
+
+        User::updateData($id, $validate);
+        header('Location: /' . $redirectOnSuccess);
         exit();
     }
 
     /**
-     * @param array $data
-     * @return array
+     * @param array $post
+     * @param string $toRedirect
+     * @return mixed|null
      */
-    private function checkForm(array $data)
+
+    protected function preAction(array $post, string $toRedirect)
     {
-        $errors = [];
-        $values = [];
-
-        if (isset($data['name'])) {
-            $name = htmlentities(trim($data['name']));
-            if (empty($name)) {
-                $errors[] = 'Name field is not filled';
-            } else {
-                $values['name'] = $name;
-            }
+        if (!$post) {
+            $this->render();
+            return null;
         }
 
-        if (empty($data['email'])) {
-            $errors[] = 'Email field is not filled';
-        } else {
-            $values['email'] = htmlentities(trim($data['email']));
+        // Если нажата кнопка "Cancel"
+        if (isset($post['cancel'])) {
+            header('Location: /' . $toRedirect);
+            return null;
         }
 
-        if (empty($data['password'])) {
-            $errors[] = 'Password field is not filled';
-        } else {
-            $values['password'] = $data['password'];
+        // Заполняем массив значениями по умолчанию для полей формы
+        self::fillFormValues($post);
+
+        // Проверяем переданные значения
+        $validate = self::checkForm($post);
+
+        if (!empty($validate['errors'])) {
+            $this->templateData['errors'] = $validate['errors'];
+            $this->render();
+            return null;
         }
 
-        if (isset($data['password_again'])) {
-            // Если такое поле существует, то значит проверяем форму Регистрации
-            if (mb_strlen($data['password']) < self::MIN_LEN_PASSWORD) {
-                $errors[] = 'Password must be at least 4 characters';
-            } elseif (strcmp($data['password'], $data['password_again']) != 0) {
-                $errors[] = 'Password mismatch';
-            } else {
-                $values['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-            }
-        }
-
-        if (empty($errors)) {
-            return ['values' => $values];
-        }
-        return ['errors' => $errors];
+        return $validate['values'];
     }
 }

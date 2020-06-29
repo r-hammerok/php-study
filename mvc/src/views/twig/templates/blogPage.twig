@@ -1,0 +1,59 @@
+{% extends "base.twig" %}
+{% block title %}Main BLOG{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+            <p class="h3 text-center">Main BLOG - for authorized users only</p>
+            <form class="form form-addpost" action="/{{ formAction is defined ? formAction : '' }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="inputPost">Enter your message:</label>
+                    <textarea id="inputPost" class="form-control" name="post" rows="7" maxlength="255"></textarea>
+                </div>
+                <div class="form-group">
+                    <p><input type="file" class="form-control-file" name="img-post" accept=".png, .gif, .jpg, .jpeg">
+                    </p>
+                </div>
+                <p><input type="submit" class="btn btn-primary" value="Send"></p>
+            </form>
+            <p class="render-note">Made with Twig</p>
+            {% if errors is defined %}
+                <div class="errors">
+                    {% for error in errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if messages is defined %}
+        {% for post in messages %}
+            {% set user = post['owner'] is empty ? '<DELETED USER>' : post['owner']['name'] %}
+            {% set image = post['img_name'] is null ? '' : post['img_name'] %}
+            {% set disabled = post['owner']['id'] == adminID ? 'disabled' : '' %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="post">
+                        <div class="post-title">
+                            <span class="user">
+                                Сообщение от <b>{{ user }}</b> отправлено {{ post['created_at']|date("d-m-Y H:i:s") }}
+                            </span>
+                            {% if isAdmin %}
+                                <a class="delete-post" href="{{ ['/posts/?delete=', post['id']]|join }}">delete</a>
+                            {% endif %}
+                        </div>
+                        <div class="post-content">
+                            {% if image is not empty %}
+                                <img src="{{ [imgDIR, image]|join }}" alt="post image">
+                            {% endif %}
+                            <div class="message">{{  post['text'] }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,11 +1,18 @@
 {% extends "base.twig" %}
-{% block title %}Authorization form{% endblock %}
+{% block title %}Edit Form{% endblock %}
 {% block content %}
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-sm-4">
-                <p class="h3 text-center px-4">Please enter your login and password</p>
-                <form class="form form-login" action="/{{ formAction is defined ? formAction : '' }}" method="post">
+                <p class="h3 text-center px-4">Change user data</p>
+                <form class="form register-form" action="/{{ formAction is defined ? formAction : '' }}"
+                      enctype="multipart/form-data"  method="post">
+                    <div class="form-group">
+                        {% set value = defaultValues['name'] is defined ? defaultValues['name'] : '' %}
+                        <label for="inputName">Name</label>
+                        <input id="inputName" type="text" class="form-control" name="name"
+                               placeholder="Enter name" value="{{ value }}">
+                    </div>
                     <div class="form-group">
                         {% set value = defaultValues['email'] is defined ? defaultValues['email'] : '' %}
                         <label for="inputEmail">Email address</label>
@@ -13,13 +20,19 @@
                                placeholder="Enter email" value="{{ value }}">
                     </div>
                     <div class="form-group">
-                        <label for="inputPassword">Password</label>
-                        <input type="password" name="password" class="form-control" id="inputPassword"
-                               placeholder="Password">
+                        <label>Photo or avatar</label>
+                        {% if defaultValues['photo'] is empty %}
+                            <div class="photo no-photo">No Photo</div>
+                        {% else %}
+                            <div class="photo">
+                                <img src="{{ [imgSRC, defaultValues['photo']]|join }}" alt="User photo">
+                            </div>
+                        {% endif %}
+                        <input type="file" class="form-control-file" id="photo" name="photo" accept=".png, .gif, .jpg, .jpeg">
                     </div>
                     <div class="form-row">
                         <div class="col text-right">
-                            <button type="submit" class="btn btn-primary mr-2">Login</button>
+                            <button type="submit" class="btn btn-primary mr-2">Save</button>
                             <button type="submit" name="cancel" class="btn btn-dark">Cancel</button>
                         </div>
                     </div>

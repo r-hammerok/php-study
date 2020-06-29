@@ -5,6 +5,10 @@ use App\Controllers as Controller;
 
 class Application
 {
+    const REQUIRED_AUTH = 1;
+    const REQUIRED_ADMIN = 2;
+    const REQUIRED_ANY = 3;
+
     protected $session;
 
     public function run()
@@ -15,39 +19,81 @@ class Application
         list($route, $action) = $this->issueRoutes();
 
         if ($route == 'index' && empty($action)) {
-            if (!empty($this->session::getUserID())) {
+            if ($this->session::userIsAuth()) {
                 header('Location: /posts');
                 exit();
             }
-            $controller = new Controller\FrontController($this->session);
-            return $controller->index();
-        }
-
-        if ($route == 'user' && $action == 'register') {
-            $controller = new Controller\UserController();
-            $controller->register();
-            return 0;
-        }
-
-        if ($route == 'user' && $action = 'login') {
-            $controller = new Controller\UserController($this->session);
-            $controller->login($_POST);
-            return 0;
-        }
-
-        if ($route == 'posts') {
-            if (empty($this->session::getUserID())) {
-                header('Location: /');
-                exit();
-            }
-            $controller = new Controller\PostController($this->session);
+            $controller = new Controller\FrontController();
             $controller->index();
             return 0;
         }
 
-        if ($route == 'api' && $action = 'getmessages') {
+        if ($route == 'user' && $action == 'register') {
+            $controller = new Controller\UserController($this->session);
+            $controller->register($_POST, $_FILES, 'login', '');
+            return 0;
+        }
+
+        if ($route == 'user' && $action == 'login') {
+            $controller = new Controller\UserController($this->session);
+            $controller->login($_POST, 'posts', '');
+            return 0;
+        }
+
+        if ($route == 'user' && $action == 'logout') {
+            $controller = new Controller\UserController($this->session);
+            $controller->logout();
+            header('Location: /');
+            exit();
+        }
+
+        if ($route == 'posts' && empty($action)) {
+            if (!self::accessControl(self::REQUIRED_AUTH)) {
+                return 0;
+            }
+
+            $controller = new Controller\PostController($this->session);
+            if ($controller->index($_GET, $_POST, $_FILES)) {
+                header('Location: /posts');
+                exit();
+            };
+            return 0;
+        }
+
+        if ($route == 'api' && $action == 'getmessages') {
             $controller = new Controller\APIController();
-            $controller->getMessages();
+            $controller->getMessages($_GET);
+            return 0;
+        }
+
+        if ($route == 'admin') {
+            if (!self::accessControl(self::REQUIRED_ADMIN)) {
+                return 0;
+            }
+
+            $controller = new Controller\AdminController($this->session);
+
+            $result = false;
+            switch ($action) {
+                case '':
+                    $controller->index();
+                    break;
+                case 'delete':
+                    $result = $controller->delete($_GET);
+                    break;
+                case 'edit':
+                    $result = $controller->edit($_GET, $_POST, $_FILES);
+                    break;
+                case 'add':
+                    $result = $controller->add($_POST, $_FILES);
+                    break;
+            }
+
+            if ($result) {
+                header('Location: /admin');
+                exit();
+            }
+
             return 0;
         }
 
@@ -56,6 +102,21 @@ class Application
         return 0;
     }
 
+    protected static function accessControl($accessLevel = self::REQUIRED_ANY): bool
+    {
+        if (Session::userIsGuest() && ($accessLevel == self::REQUIRED_AUTH || $accessLevel == self::REQUIRED_ADMIN)) {
+            $controller = new Controller\FrontController();
+            $controller->index();
+            return false;
+        }
+        if (!Session::userIsAdmin() && $accessLevel == self::REQUIRED_ADMIN) {
+            $controller = new Controller\FrontController();
+            $controller->accessDenied();
+            return false;
+        }
+
+        return $accessLevel = self::REQUIRED_ANY;
+    }
     /**
      * @return array
      * *************
@@ -71,6 +132,7 @@ class Application
             '' => ['index', ''],
             'login' => ['user', 'login'],
             'register' => ['user', 'register'],
+            'logout' => ['user', 'logout'],
             'post' => ['posts', 'index']
         ];
 

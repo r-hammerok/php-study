@@ -1,19 +1,24 @@
 <?php
 namespace App\Controllers;
 
-use App\Models;
+use App\Models\Post;
 
 class APIController extends BaseController
 {
-    public function getMessages()
+    public function getMessages(array $get)
     {
-        $userId = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
-        $result = (new Models\post())->getPosts($userId, POST_GETAPI_LIMIT);
+        $userId = isset($get['user_id']) ? (int) $get['user_id'] : 0;
+        $result = Post::getPosts($userId, POST_GETAPI_LIMIT, true);
+
+        $this->templateName = 'index/apiResultPage';
+        $this->templateData = $this->response('Data not found', 404);
+
         if ($result) {
-            $this->render('index\apiResultPage', $this->response($result, 200));
-            exit();
+            $this->templateData = $this->response($result, 200);
         }
-        $this->render('index\apiResultPage', $this->response('Data not found', 404));
+
+        $this->render();
+        exit();
     }
 
     /**

@@ -1,7 +1,9 @@
 {
 
   "require": {
-    "twig/twig": "^3.0"
+    "twig/twig": "^3.0",
+    "illuminate/database":  "5.1.8",
+    "ext-json": "*"
   }
 
 }

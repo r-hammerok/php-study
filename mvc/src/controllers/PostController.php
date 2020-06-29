@@ -5,60 +5,47 @@ use App\Models\Post;
 
 class PostController extends BaseController
 {
-    public function index()
+    public function index(array $get, array $post, array $files)
     {
-        $post = new Post();
-
-        if (isset($_GET['delete']) && $this->session::getUserID() == ADMIN_ID) {
-            $post->delete($_GET['delete']);
+        if (isset($get['delete']) && $this->session::userIsAdmin()) {
+            Post::deleteCurrent((int) $get['delete']);
+            return true;
         }
 
-        $data['messages'] = $post->getPosts($post::POSTS_ALL_USERS, POST_DISPLAY_LIMIT);
+        $this->templateName = 'blogPage.twig';
+        $this->renderType = self::RENDER_TYPE_TWIG;
+        $this->templateData['formAction'] = 'posts';
+        $this->templateData['messages'] = Post::getPosts(Post::POSTS_ALL_USERS, POST_DISPLAY_LIMIT);
+        $this->templateData['isAdmin'] = $this->session::userIsAdmin();
+        $this->templateData['imgDIR'] = IMG_HTML_DIR;
 
-        if (empty($_POST)) {
-            $this->render('post\blogPage', $data);
-            return 0;
+        if (empty($post)) {
+            $this->render();
+            return false;
         }
 
-        $message = htmlentities(trim($_POST['post']));
+        $message = htmlentities(trim($post['post']));
         if (empty($message)) {
-            $data['errors'] = [0 => 'Message field is not filled'];
-            $this->render('post\blogPage', $data);
-            return 0;
-        }
-
-        $newPost['imgName'] = null;
-        if (!empty($_FILES['img-post']['tmp_name'])) {
-            $tmp_name = $_FILES['img-post']['tmp_name'];
-            $extension = strtolower(substr(strrchr($_FILES['img-post']['name'], '.'), 1));
-            $file = self::randomFileName($extension);
-            move_uploaded_file($tmp_name, __DIR__ . IMG_DIR . $file);
-            $newPost['imgName'] = $file;
+            $this->templateData['errors'] = ['Message field is not filled'];
+            $this->render();
+            return false;
         }
 
         $newPost['text'] = $message;
-        $newPost['createdAt'] = date('Y-m-d H:i:s');
-        $newPost['ownerId'] = $this->session->getUserID();
+        $newPost['owner_id'] = $this->session->getUserID();
 
-        $post->save($newPost);
-        $data['messages'] = $post->getPosts($post::POSTS_ALL_USERS, POST_DISPLAY_LIMIT);
+        $newPost['img_name'] = '';
+
+        if (!empty($files['img-post']['tmp_name'])) {
+            $tmp_name = $files['img-post']['tmp_name'];
+            $file = self::getRandomFileName($files['img-post']['name']);
+            move_uploaded_file($tmp_name, __DIR__ . IMG_DIR . $file);
+            $newPost['img_name'] = $file;
+        }
+
+        Post::insertData($newPost);
 
         header('Location: /posts');
         exit();
-    }
-
-    /**
-     * @param bool $extension
-     * @return string
-     */
-    protected function randomFileName($extension = false)
-    {
-        $extension = $extension ? '.' . $extension : '';
-        do {
-            $name = substr(md5(microtime() . rand(0, 1000)), 0, 10);
-            $file = $name . $extension;
-        } while (file_exists($file));
-
-        return $file;
     }
 }

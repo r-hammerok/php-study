@@ -5,6 +5,7 @@ class Err404Controller extends BaseController
 {
     public function index()
     {
-        $this->render('index\404Page');
+        $this->templateName = 'index\404Page';
+        $this->render();
     }
 }

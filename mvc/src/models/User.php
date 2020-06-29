@@ -1,64 +1,38 @@
 <?php
 namespace App\Models;
 
-use Base;
-
-class User
+class User extends Base
 {
-    protected $name;
-    protected $id;
-    protected $registrationDate;
-    protected $email;
-    protected $passwordHash;
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    protected function set($data)
-    {
-        if (isset($data['id'])) {
-            $this->id = $data['id'];
-        };
-        $this->name = $data['name'];
-        $this->registrationDate = $data['reg_data'];
-        $this->email = mb_strtolower($data['email']);
-        $this->passwordHash = $data['password'];
-
-        return $this;
-    }
-
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public function saveData(array $data): bool
-    {
-        $query = "INSERT INTO users (`name`, reg_data, email, password) VALUES (:name, :regDate, :email, :password)";
-        $result = Base\db::execute($query, $data);
-        if ($result) {
-            self::set(self::getData($data['email']));
-        }
-        return $result;
-    }
+    protected $guarded = ['id'];
 
     /**
      * @param $param
-     * @return array|false
-     *
+     * @return array
      * Возвращает запись из таблицы users.
      * Если переданный параметр - целое число, то запитсь ищется по полю id,
-     * если переданный параметр - строка, то запись ищется по полю email.
-    */
-    public function getData($param)
+     * если переданный параметр - строка, то запись ищется по полю email?
+     * если передан пустой параметр - возвращаются все записи
+     */
+    public static function getData($param = '')
     {
-        if (is_int($param)) {
-            $field = 'id';
+        self::initConnection();
+        $query = self::query();
+        if (empty($param)) {
+            $result = $query->get()->sortByDesc('id');
         } else {
-            $field = 'email';
+            $field = is_int($param) ? 'id' : 'email';
+            $result = $query->where($field, '=', $param)->first();
         }
-        $query = "SELECT * FROM users WHERE " . $field . " = :value";
 
-        return Base\db::fetch($query, ['value' => $param]);
+        if (!$result) {
+            return [];
+        }
+        return $result->toArray();
+    }
+
+    public static function recordIsExist(string $column, string $value): bool
+    {
+        self::initConnection();
+        return !empty(self::query()->where($column, $value)->first());
     }
 }

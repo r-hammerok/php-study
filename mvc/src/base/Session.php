@@ -24,6 +24,12 @@ class Session
         return self::$session;
     }
 
+    public static function clearSession()
+    {
+        self::$userId = null;
+        unset($_SESSION['user_id']);
+    }
+
     public static function getUserID()
     {
         return self::$userId;
@@ -33,5 +39,20 @@ class Session
     {
         self::$userId = $newUserId;
         $_SESSION['user_id'] = self::$userId;
+    }
+
+    public static function userIsAuth()
+    {
+        return !empty(self::$userId);
+    }
+
+    public static function userIsAdmin()
+    {
+        return self::$userId === ADMIN_ID;
+    }
+
+    public static function userIsGuest()
+    {
+        return empty(self::$userId);
     }
 }
