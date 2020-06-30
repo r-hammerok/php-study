@@ -8,5 +8,7 @@ if (DEVELOPMENT === 1) {
     error_reporting(E_ALL);
 }
 
+App\Models\Base::initConnection();
+
 $app = new Base\Application();
 $app->run();

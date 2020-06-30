@@ -35,19 +35,16 @@ class Base extends Model
      */
     public static function insertData(array $data): Base
     {
-        self::initConnection();
         return self::create($data);
     }
 
     public static function deleteCurrent(int $id)
     {
-        self::initConnection();
         return self::destroy($id);
     }
 
     public static function updateData(int $id, array $data)
     {
-        self::initConnection();
         return self::query()->find($id)->update($data);
     }
 }

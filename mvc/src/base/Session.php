@@ -6,7 +6,7 @@ class Session
     private static $session;
     private static $userId;
 
-    public function __construct()
+    private function __construct()
     {
     }
 

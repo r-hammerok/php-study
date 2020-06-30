@@ -15,7 +15,6 @@ class User extends Base
      */
     public static function getData($param = '')
     {
-        self::initConnection();
         $query = self::query();
         if (empty($param)) {
             $result = $query->get()->sortByDesc('id');
@@ -32,7 +31,6 @@ class User extends Base
 
     public static function recordIsExist(string $column, string $value): bool
     {
-        self::initConnection();
         return !empty(self::query()->where($column, $value)->first());
     }
 }
