@@ -8,7 +8,7 @@ class APIController extends BaseController
     public function getMessages(array $get)
     {
         $userId = isset($get['user_id']) ? (int) $get['user_id'] : 0;
-        $result = Post::getPosts($userId, POST_GETAPI_LIMIT, true);
+        $result = Post::getPosts($userId, POST_GETAPI_LIMIT);
 
         $this->templateName = 'index/apiResultPage';
         $this->templateData = $this->response('Data not found', 404);
