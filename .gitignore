@@ -3,6 +3,7 @@ temp
 proekt
 mvc_dima
 mvc-habr
+mvc/src/composer.phar
 mvc/src/vendor/
 mvc/src/views/twig/cache/
 dz5/vendor/
